@@ -59,23 +59,26 @@ void loop() {
     buttonState4 = digitalRead(BUTTON4_PIN);
     
     // Print data to Serial Monitor on Arduino IDE
-    Serial.print("main x = ");
+    Serial.print("Main:");
     Serial.print(x1Value);
-    Serial.print(", main y = ");
+    Serial.print(", ");
     Serial.print(y1Value);
-    Serial.print(" : main click = ");
-    Serial.println(b1Value);
-    
-    Serial.print("2nd x = ");
+
+    Serial.print("|Secondary:");
     Serial.print(x1Value);
-    Serial.print(", 2nd y = ");
+    Serial.print(", ");
     Serial.print(y1Value);
-    Serial.print(" : 2nd click = ");
-    Serial.println(b1Value);
-    
-    Serial.print("buttons: ");
+
+    Serial.print("|Buttons:");
+    Serial.print(b1Value);
+    Serial.print(", ");
+    Serial.print(b2Value);
+    Serial.print(", ");
     Serial.print(buttonState1);
+    Serial.print(", ");
     Serial.print(buttonState2);
+    Serial.print(", ");
     Serial.print(buttonState3);
+    Serial.print(", ");
     Serial.println(buttonState4);
 }

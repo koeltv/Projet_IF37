@@ -20,7 +20,10 @@ class Joystick: PropertyChangeListener, Runnable {
         while (!Thread.currentThread().isInterrupted) {
             val (x, y) = MouseInfo.getPointerInfo().location
             if (joystickState.mainAxis.x != 512 || joystickState.mainAxis.y != 512) {
-                robot.mouseMove(x + (joystickState.mainAxis.x - 512), y + (joystickState.mainAxis.y - 512))
+                val newCoordinates = (x + (joystickState.mainAxis.x - 512) to y + (joystickState.mainAxis.y - 512)).fixCoordinates(x)
+
+                robot.mouseMove(newCoordinates.first, newCoordinates.second)
+                println("${MouseInfo.getPointerInfo().device} ${MouseInfo.getPointerInfo().location}")
             }
         }
     }
