@@ -2,9 +2,9 @@
 
 #define MAINX_PIN A0
 #define MAINY_PIN A2
-#define MAIN_SW_PIN 2
 #define SECONDX_PIN A1
 #define SECONDY_PIN A3
+#define MAIN_SW_PIN 2
 #define SECOND_SW_PIN 3
 
 #define BUTTON1_PIN 4
@@ -22,6 +22,11 @@ int b1Value = 0;
 int x2Value = 0;
 int y2Value = 0;
 int b2Value = 0;
+
+bool buttonState1 = 0;
+bool buttonState2 = 0;
+bool buttonState3 = 0;
+bool buttonState4 = 0;
 
 void setup() {
     Serial.begin(9600);
