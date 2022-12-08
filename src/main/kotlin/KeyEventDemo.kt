@@ -4,19 +4,13 @@ import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import java.awt.event.KeyEvent
 import java.awt.event.KeyListener
-import java.beans.PropertyChangeListener
 import java.beans.PropertyChangeSupport
 import javax.swing.*
 
-class KeyEventDemo(name: String?) : JFrame(name), KeyListener, ActionListener {
-    private val pcs = PropertyChangeSupport(this)
-
-    fun addListener(changeListener: PropertyChangeListener) {
-        pcs.addPropertyChangeListener(changeListener)
-    }
-
+class KeyEventDemo(name: String?) : JFrame(name), KeyListener, ActionListener, Observable {
     private var displayArea: JTextArea? = null
     private var typingArea: JTextField? = null
+    override val changeSupport = PropertyChangeSupport(this)
 
     private fun addComponentsToPane() {
         val button = JButton("Clear")
@@ -48,14 +42,14 @@ class KeyEventDemo(name: String?) : JFrame(name), KeyListener, ActionListener {
                 KeyEvent.VK_RIGHT -> 522 to 512
                 else -> error("Unknown action")
             }
-            pcs.firePropertyChange("KEY_TYPED", null, JoystickState(newCoordinates, 512 to 512, emptyList()))
+            firePropertyChange("KEY_TYPED", JoystickState(newCoordinates, 512 to 512, emptyList()))
         }
     }
 
     /** Handle the key released event from the text field.  */
     override fun keyReleased(e: KeyEvent) {
         displayInfo(e, "KEY RELEASED: ")
-        pcs.firePropertyChange("KEY_TYPED", null, JoystickState.defaultState)
+        firePropertyChange("KEY_TYPED", JoystickState.defaultState)
     }
 
     /** Handle the button click.  */
@@ -74,7 +68,11 @@ class KeyEventDemo(name: String?) : JFrame(name), KeyListener, ActionListener {
             "key code = $keyCode (${KeyEvent.getKeyText(keyCode)})"
         }
         var actionString = "action key? "
-        actionString += if (e.isActionKey) { "YES" } else { "NO" }
+        actionString += if (e.isActionKey) {
+            "YES"
+        } else {
+            "NO"
+        }
 
         displayArea!!.append("$keyStatus\n\t$keyString\n\t$actionString\n")
         displayArea!!.caretPosition = displayArea!!.document.length

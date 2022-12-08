@@ -1,16 +1,12 @@
 import com.fazecast.jSerialComm.SerialPort
 import com.fazecast.jSerialComm.SerialPortEvent
 import com.fazecast.jSerialComm.SerialPortMessageListener
-import java.beans.PropertyChangeListener
 import java.beans.PropertyChangeSupport
 
-class SerialConnection(portDescription: String = "COM3") {
+class SerialConnection(portDescription: String = "COM3"): Observable {
     private val serialPort = SerialPort.getCommPort(portDescription)
-    private val changeSupport = PropertyChangeSupport(this)
 
-    fun addListener(changeListener: PropertyChangeListener) {
-        changeSupport.addPropertyChangeListener(changeListener)
-    }
+    override val changeSupport = PropertyChangeSupport(this)
 
     init {
         serialPort.openPort()
@@ -24,7 +20,7 @@ class SerialConnection(portDescription: String = "COM3") {
                 val delimitedMessage = event.receivedData.map { byte -> byte.toInt().toChar() }.joinToString("").removeSuffix("\n")
                 if (delimitedMessage.containsAny(wrongChars)) return
                 println("Message is: $delimitedMessage")
-                changeSupport.firePropertyChange("", null, JoystickState.parseFrom(delimitedMessage))
+                firePropertyChange("", JoystickState.parseFrom(delimitedMessage))
             }
         })
     }

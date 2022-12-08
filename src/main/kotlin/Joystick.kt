@@ -3,10 +3,10 @@ import java.awt.Robot
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 
+val robot = Robot()
+
 class Joystick: PropertyChangeListener, Runnable {
     private var joystickState = JoystickState.defaultState
-
-    private val robot = Robot()
 
     override fun propertyChange(evt: PropertyChangeEvent) {
         val event = evt.newValue
@@ -23,7 +23,6 @@ class Joystick: PropertyChangeListener, Runnable {
                 val newCoordinates = (x + (joystickState.mainAxis.x - 512) to y + (joystickState.mainAxis.y - 512)).fixCoordinates(x)
 
                 robot.mouseMove(newCoordinates.first, newCoordinates.second)
-                println("${MouseInfo.getPointerInfo().device} ${MouseInfo.getPointerInfo().location}")
             }
         }
     }
@@ -36,4 +35,6 @@ fun main() {
     KeyEventDemo.createAndShowGUI().addListener(joystick)
 
     SerialConnection("COM3").addListener(joystick)
+
+    VoiceRecognition().addListener(joystick)
 }
