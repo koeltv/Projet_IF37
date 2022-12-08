@@ -36,5 +36,6 @@ fun main() {
 
     SerialConnection("COM3").addListener(joystick)
 
+    setupVoiceRecognition()
     VoiceRecognition().addListener(joystick)
 }
