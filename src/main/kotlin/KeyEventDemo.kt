@@ -1,5 +1,6 @@
 import java.awt.BorderLayout
 import java.awt.Dimension
+import java.awt.Point
 import java.awt.event.ActionEvent
 import java.awt.event.ActionListener
 import java.awt.event.KeyEvent
@@ -28,13 +29,13 @@ class KeyEventDemo(name: String?) : JFrame(name), KeyListener, ActionListener, O
 
     /** Handle the key typed event from the text field.  */
     override fun keyTyped(e: KeyEvent) {
-        displayInfo(e, "KEY TYPED: ")
+//        displayInfo(e, "KEY TYPED: ")
     }
 
     /** Handle the key pressed event from the text field.  */
     override fun keyPressed(e: KeyEvent) {
-        displayInfo(e, "KEY PRESSED: ")
         if (e.isActionKey) {
+            displayInfo(e, "KEY PRESSED: ")
             val newCoordinates = when (e.keyCode) {
                 KeyEvent.VK_UP -> 512 to 502
                 KeyEvent.VK_DOWN -> 512 to 522
@@ -42,14 +43,16 @@ class KeyEventDemo(name: String?) : JFrame(name), KeyListener, ActionListener, O
                 KeyEvent.VK_RIGHT -> 522 to 512
                 else -> error("Unknown action")
             }
-            firePropertyChange("KEY_TYPED", JoystickState(newCoordinates, 512 to 512, emptyList()))
+            firePropertyChange(MAIN_AXIS, Point(newCoordinates))
         }
     }
 
     /** Handle the key released event from the text field.  */
     override fun keyReleased(e: KeyEvent) {
-        displayInfo(e, "KEY RELEASED: ")
-        firePropertyChange("KEY_TYPED", JoystickState.defaultState)
+        if (e.isActionKey) {
+            displayInfo(e, "KEY RELEASED: ")
+            firePropertyChange("KEY_TYPED", JoystickState.defaultState)
+        }
     }
 
     /** Handle the button click.  */

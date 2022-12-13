@@ -5,12 +5,6 @@ data class JoystickState(
     val secondaryAxis: Point,
     val buttons: List<Boolean>
 ) {
-    constructor(mainAxis: Pair<Int, Int>, secondaryAxis: Pair<Int, Int>, buttons: List<Boolean>) : this(
-        Point(mainAxis.first, mainAxis.second),
-        Point(secondaryAxis.first, secondaryAxis.second),
-        buttons
-    )
-
     companion object {
         private val joystickStateRegex = Regex("Main:(\\d)+, (\\d)+\\|Secondary:(\\d)+, (\\d)+\\|Buttons:(.+)")
 
@@ -42,4 +36,7 @@ data class JoystickState(
             )
         }"
     }
+
+    fun mainAxisWasMoved() = mainAxis.x != 512 || mainAxis.y != 512
+    fun secondaryAxisWasMoved() = secondaryAxis.x != 512 || secondaryAxis.y != 512
 }

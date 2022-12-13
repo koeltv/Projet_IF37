@@ -21,7 +21,7 @@ class VoiceRecognition : Observable {
 
                 if (confidence > 0.70) {
                     println("$action passing !")
-                    robot.keyPress(keyMap[action]!!)
+                    UserInput.triggerOnce(action)
                 } else { // Reconnaissance trop faible
                     sendResponse("Je n'ai pas bien compris, veuillez répéter")
                 }

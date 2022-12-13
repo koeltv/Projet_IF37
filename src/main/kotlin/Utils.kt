@@ -13,6 +13,11 @@ operator fun Point.component2() = y
 
 fun String.containsAny(wrongChars: CharArray) = any { c -> c in wrongChars }
 
+/**
+ * Dead zones are an ensemble of coordinates between screen that are not used because of a difference between
+ * the expected resolution (ex: 1920x1080) and the actual resolution.
+ * We only consider those on the X axis here.
+ */
 private val deadZones: List<IntRange> = GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
     .map { screen -> screen.configurations[0].bounds }.let { screenBounds ->
         val deadZones = mutableListOf<IntRange>()
@@ -25,11 +30,11 @@ private val deadZones: List<IntRange> = GraphicsEnvironment.getLocalGraphicsEnvi
 /**
  * If there is more than 1 screen, take into account the possible "dead zone" between them.
  */
-fun Pair<Int, Int>.fixCoordinates(oldX: Int): Pair<Int, Int> {
-    val deadZone = deadZones.find { deadZone -> first in deadZone }
+fun Point.fixCoordinates(oldX: Int): Point {
+    val deadZone = deadZones.find { deadZone -> x in deadZone }
     return if (deadZone != null) {
         val newX = if (oldX < deadZone.first) deadZone.last else deadZone.first - 1
-        newX to this.second
+        newX to y
     } else {
         this
     }
@@ -60,3 +65,5 @@ fun Rectangle.verticalRange() = y..(height - y)
 fun Double.coerceIn(range: IntRange): Double {
     return coerceIn(range.first.toDouble()..range.last.toDouble())
 }
+
+infix fun Int.to(int: Int) = Point(this, int)

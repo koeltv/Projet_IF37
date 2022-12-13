@@ -1,57 +1,67 @@
 import java.awt.MouseInfo
-import java.awt.Robot
+import java.awt.Point
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
-
-val robot = Robot()
 
 class Joystick : PropertyChangeListener, Runnable {
     private var joystickState = JoystickState.defaultState
 
     override fun propertyChange(evt: PropertyChangeEvent) {
-        val event = evt.newValue
-        if (event is JoystickState) {
-            joystickState = event
-            println(event)
+        when (val event = evt.newValue) {
+            is JoystickState -> {
+                joystickState = event
+            }
+            is Point -> {
+                if (evt.propertyName == MAIN_AXIS) {
+                    joystickState = JoystickState(event, joystickState.secondaryAxis, joystickState.buttons)
+                } else if (evt.propertyName == SECONDARY_AXIS) {
+                    joystickState = JoystickState(joystickState.mainAxis, event, joystickState.buttons)
+                }
+            }
+            else -> error("Unknown event: $event")
         }
     }
 
     override fun run() {
+        Thread(this::runButtons).start()
         while (!Thread.currentThread().isInterrupted) {
-            val (x, y) = MouseInfo.getPointerInfo().location
-            if (config[JOYSTICK]["MAIN_AXIS"]["CONTROL_MOUSE"].asBoolean()) {
-                if (joystickState.mainAxis.x != 512 || joystickState.mainAxis.y != 512) {
-                    val newCoordinates = (x + (joystickState.mainAxis.x - 512) to y + (joystickState.mainAxis.y - 512)).fixCoordinates(x)
-
-                    robot.mouseMove(newCoordinates.first, newCoordinates.second)
+            if (config[JOYSTICK][MAIN_AXIS][CONTROL_MOUSE].asBoolean()) {
+                if (joystickState.mainAxisWasMoved()) {
+                    val newCoordinates =
+                        convertToScreenCoordinates(joystickState.mainAxis).fixCoordinates(MouseInfo.getPointerInfo().location.x)
+                    UserInput.mouseMove(newCoordinates)
                 }
             }
 
-            if (config[JOYSTICK]["SECONDARY_AXIS"]["CONTROL_MOUSE"].asBoolean()) {
-                if (joystickState.mainAxis.x != 512 || joystickState.mainAxis.y != 512) {
-                    val newCoordinates = (x + (joystickState.mainAxis.x - 512) to y + (joystickState.mainAxis.y - 512)).fixCoordinates(x)
-
-                    robot.mouseMove(newCoordinates.first, newCoordinates.second)
-                }
-            }
-
-            joystickState.buttons.forEachIndexed { index, buttonPressed ->
-                val action = when (index) {
-                    JoystickState.MAIN_TRIGGER -> config[JOYSTICK]["MAIN_AXIS"]["ON_CLICK"].textValue()
-                    JoystickState.SECONDARY_TRIGGER -> config[JOYSTICK]["SECONDARY_AXIS"]["ON_CLICK"].textValue()
-                    else -> config[JOYSTICK]["BUTTONS"].toList()[index].textValue()
-                }
-
-                if (action in keyMap) {
-                    if (buttonPressed) robot.keyPress(keyMap[action]!!)
-                    else robot.keyRelease(keyMap[action]!!)
-                } else {
-                    if (buttonPressed) robot.mousePress(mouseAction[action]!!)
-                    else robot.mouseRelease(mouseAction[action]!!)
+            if (config[JOYSTICK][SECONDARY_AXIS][CONTROL_MOUSE].asBoolean()) {
+                if (joystickState.secondaryAxisWasMoved()) {
+                    val newCoordinates =
+                        convertToScreenCoordinates(joystickState.secondaryAxis).fixCoordinates(MouseInfo.getPointerInfo().location.x)
+                    UserInput.mouseMove(newCoordinates)
                 }
             }
         }
     }
+
+    private fun runButtons() {
+        joystickState.buttons.forEachIndexed { index, buttonPressed ->
+            val action = when (index) {
+                JoystickState.MAIN_TRIGGER -> config[JOYSTICK][MAIN_AXIS][ON_CLICK].textValue()
+                JoystickState.SECONDARY_TRIGGER -> config[JOYSTICK][SECONDARY_AXIS][ON_CLICK].textValue()
+                else -> config[JOYSTICK][BUTTONS].toList()[index-2].textValue()
+            }
+
+            if (buttonPressed) UserInput.trigger(action)
+            else UserInput.release(action)
+        }
+    }
+
+    private fun convertToScreenCoordinates(point: Point): Point {
+        val (x, y) = MouseInfo.getPointerInfo().location
+        return x + (point.x - 512) to y + (point.y - 512)
+    }
+
+
 }
 
 fun main() {
