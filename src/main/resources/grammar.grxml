@@ -20,10 +20,6 @@
             <item>clique
                 <tag>out="ordre=CLIQUE"</tag>
             </item>
-            <item>supprimer
-                <tag>out="ordre=SUPPRIMER"</tag>
-            </item>
-
             <item>test
                 <tag>out="ordre=TEST"</tag>
             </item>

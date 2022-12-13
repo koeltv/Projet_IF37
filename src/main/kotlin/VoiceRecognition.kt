@@ -7,6 +7,8 @@ class VoiceRecognition : Observable {
 
     override val changeSupport = PropertyChangeSupport(this)
 
+    private val actions = config["VOICE"]["ACTIONS"]
+
     init {
         try {
             bus.start("127.255.255.255:2010")
@@ -15,7 +17,7 @@ class VoiceRecognition : Observable {
 
                 if (args[2].replace(",", ".").toFloat() > 0.70) {
                     println("${args[1]} passing !")
-                    robot.keyPress(keyMap[config[args[1]].textValue()!!]!!)
+                    robot.keyPress(keyMap[actions[args[1]].textValue()!!]!!)
                 } else { // Reconnaissance trop faible
                     sendResponse("Je n'ai pas bien compris, veuillez répéter")
                 }
