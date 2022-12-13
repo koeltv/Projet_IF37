@@ -20,6 +20,9 @@ data class JoystickState(
             listOf(false, false, false, false, false, false)
         )
 
+        const val MAIN_TRIGGER = 0
+        const val SECONDARY_TRIGGER = 1
+
         fun parseFrom(string: String): JoystickState? {
             return joystickStateRegex.matchEntire(string)?.destructured
                 ?.let { (mainX, mainY, secondX, secondY, buttons) ->

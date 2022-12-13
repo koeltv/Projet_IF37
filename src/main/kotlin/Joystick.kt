@@ -5,7 +5,7 @@ import java.beans.PropertyChangeListener
 
 val robot = Robot()
 
-class Joystick: PropertyChangeListener, Runnable {
+class Joystick : PropertyChangeListener, Runnable {
     private var joystickState = JoystickState.defaultState
 
     override fun propertyChange(evt: PropertyChangeEvent) {
@@ -19,10 +19,36 @@ class Joystick: PropertyChangeListener, Runnable {
     override fun run() {
         while (!Thread.currentThread().isInterrupted) {
             val (x, y) = MouseInfo.getPointerInfo().location
-            if (joystickState.mainAxis.x != 512 || joystickState.mainAxis.y != 512) {
-                val newCoordinates = (x + (joystickState.mainAxis.x - 512) to y + (joystickState.mainAxis.y - 512)).fixCoordinates(x)
+            if (config[JOYSTICK]["MAIN_AXIS"]["CONTROL_MOUSE"].asBoolean()) {
+                if (joystickState.mainAxis.x != 512 || joystickState.mainAxis.y != 512) {
+                    val newCoordinates = (x + (joystickState.mainAxis.x - 512) to y + (joystickState.mainAxis.y - 512)).fixCoordinates(x)
 
-                robot.mouseMove(newCoordinates.first, newCoordinates.second)
+                    robot.mouseMove(newCoordinates.first, newCoordinates.second)
+                }
+            }
+
+            if (config[JOYSTICK]["SECONDARY_AXIS"]["CONTROL_MOUSE"].asBoolean()) {
+                if (joystickState.mainAxis.x != 512 || joystickState.mainAxis.y != 512) {
+                    val newCoordinates = (x + (joystickState.mainAxis.x - 512) to y + (joystickState.mainAxis.y - 512)).fixCoordinates(x)
+
+                    robot.mouseMove(newCoordinates.first, newCoordinates.second)
+                }
+            }
+
+            joystickState.buttons.forEachIndexed { index, buttonPressed ->
+                val action = when (index) {
+                    JoystickState.MAIN_TRIGGER -> config[JOYSTICK]["MAIN_AXIS"]["ON_CLICK"].textValue()
+                    JoystickState.SECONDARY_TRIGGER -> config[JOYSTICK]["SECONDARY_AXIS"]["ON_CLICK"].textValue()
+                    else -> config[JOYSTICK]["BUTTONS"].toList()[index].textValue()
+                }
+
+                if (action in keyMap) {
+                    if (buttonPressed) robot.keyPress(keyMap[action]!!)
+                    else robot.keyRelease(keyMap[action]!!)
+                } else {
+                    if (buttonPressed) robot.mousePress(mouseAction[action]!!)
+                    else robot.mouseRelease(mouseAction[action]!!)
+                }
             }
         }
     }
