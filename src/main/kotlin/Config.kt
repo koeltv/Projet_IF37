@@ -4,6 +4,11 @@ import java.awt.event.KeyEvent
 import java.io.File
 
 const val JOYSTICK = "JOYSTICK"
+const val VOICE = "VOICE"
+const val EYE_TRACKING = "EYE_TRACKING"
+
+const val ENABLED = "ENABLED"
+const val ACTIONS = "ACTIONS"
 
 val keyMap = (0..1000000).mapNotNull { i ->
     val key = KeyEvent.getKeyText(i)

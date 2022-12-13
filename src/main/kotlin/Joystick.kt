@@ -39,13 +39,12 @@ fun main() {
     SerialConnection("COM3").addListener(joystick)
 
     //Voice recognition
-    if (config["VOICE"]["ENABLED"].asBoolean()) {
-        setupVoiceRecognition()
+    if (config[VOICE][ENABLED].asBoolean()) {
         VoiceRecognition().addListener(joystick)
     }
 
     //Eye tracking
-    if (config["EYE_TRACKING"]["ENABLED"].asBoolean()) {
+    if (config[EYE_TRACKING][ENABLED].asBoolean()) {
         ScreenScaleConverter(EyeTracking()).addListener(joystick)
     }
 }
