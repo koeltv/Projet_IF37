@@ -1,4 +1,5 @@
-/librairies/javadoc-ivy-1.2.18/
+/librairies/*javadoc*
+/librairies/*sources*
 /.idea/
 /out/production
 Projet_IF37.iml

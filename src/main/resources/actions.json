@@ -1,4 +1,25 @@
 {
-  "CLIQUE": "B",
-  "TEST": "A"
+  "JOYSTICK": {
+    "MAIN_AXIS": {
+      "CONTROL_MOUSE": true,
+      "ON_CLICK": "A"
+    },
+    "SECONDARY_AXIS": {
+      "CONTROL_MOUSE": false,
+      "ON_CLICK": "B"
+    },
+    "BUTTONS": [
+      "X", "Y", "A", "B"
+    ]
+  },
+  "VOICE": {
+    "ENABLED": true,
+    "ACTIONS": {
+      "CLIQUE": "B",
+      "TEST": "A"
+    }
+  },
+  "EYE_TRACKING": {
+    "ENABLED": false
+  }
 }

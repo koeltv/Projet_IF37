@@ -1,27 +1,14 @@
-import java.awt.event.KeyEvent
 import java.io.File
 
-val keyMap = (0..1000000).mapNotNull { i ->
-    val key = KeyEvent.getKeyText(i)
-    if (key.contains("Unknown")) null
-    else key to i
-}.toMap()
-
-val config = File("src/main/resources/actions.json").readLines().let { lines ->
-    lines.subList(1, lines.lastIndex).associate { entry ->
-        val (key, value) = Regex("\"(.+)\" *: *\"(.+)\"").find(entry)!!.destructured
-        key to value
-    }
-}
-
 fun setupVoiceRecognition() {
-    var notAddedConfigs = config
+    var notAddedConfigs = config["VOICE"]["ACTIONS"].fields().asSequence().map { (key, value) -> key to value }.toMap()
+
     val grammarFilePath = "src/main/resources/grammar"
     val grammarFile = File("$grammarFilePath.grxml")
     val grammarFileTemp = File("${grammarFilePath}_temp.grxml")
     var openingEncountered = false
-    grammarFile.useLines { lineSequence ->
-        lineSequence.forEach { line ->
+    grammarFile.useLines {
+        it.forEach { line ->
             notAddedConfigs = notAddedConfigs.filter { conf -> !line.contains(conf.key.uppercase()) }
 
             if (openingEncountered && line.contains("</one-of>")) {

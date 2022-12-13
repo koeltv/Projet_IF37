@@ -32,10 +32,20 @@ fun main() {
     val joystick = Joystick()
     Thread(joystick).start()
 
+    //Demo key input
     KeyEventDemo.createAndShowGUI().addListener(joystick)
 
+    //Serial link
     SerialConnection("COM3").addListener(joystick)
 
-    setupVoiceRecognition()
-    VoiceRecognition().addListener(joystick)
+    //Voice recognition
+    if (config["VOICE"]["ENABLED"].asBoolean()) {
+        setupVoiceRecognition()
+        VoiceRecognition().addListener(joystick)
+    }
+
+    //Eye tracking
+    if (config["EYE_TRACKING"]["ENABLED"].asBoolean()) {
+        ScreenScaleConverter(EyeTracking()).addListener(joystick)
+    }
 }

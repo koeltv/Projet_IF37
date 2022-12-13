@@ -3,7 +3,7 @@ import fr.dgac.ivy.IvyException
 import java.beans.PropertyChangeSupport
 
 class VoiceRecognition : Observable {
-    val bus: Ivy = Ivy("Voice_recognition", "Voice_recognition is ready", null)
+    private val bus: Ivy = Ivy("Voice_recognition", "Voice_recognition is ready", null)
 
     override val changeSupport = PropertyChangeSupport(this)
 
@@ -15,7 +15,7 @@ class VoiceRecognition : Observable {
 
                 if (args[2].replace(",", ".").toFloat() > 0.70) {
                     println("${args[1]} passing !")
-                    robot.keyPress(keyMap[config[args[1]]!!]!!)
+                    robot.keyPress(keyMap[config[args[1]].textValue()!!]!!)
                 } else { // Reconnaissance trop faible
                     sendResponse("Je n'ai pas bien compris, veuillez répéter")
                 }
