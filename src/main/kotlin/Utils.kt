@@ -11,8 +11,6 @@ import javax.imageio.ImageIO
 operator fun Point.component1() = x
 operator fun Point.component2() = y
 
-fun String.containsAny(wrongChars: CharArray) = any { c -> c in wrongChars }
-
 /**
  * Dead zones are an ensemble of coordinates between screen that are not used because of a difference between
  * the expected resolution (ex: 1920x1080) and the actual resolution.
@@ -67,3 +65,5 @@ fun Double.coerceIn(range: IntRange): Double {
 }
 
 infix fun Int.to(int: Int) = Point(this, int)
+
+infix fun Int.byAbout(margin: Int) = this-margin..this+margin

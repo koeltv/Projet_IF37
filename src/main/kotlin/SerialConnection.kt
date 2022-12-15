@@ -4,11 +4,7 @@ import com.fazecast.jSerialComm.SerialPortEvent
 import java.beans.PropertyChangeSupport
 
 class SerialConnection(portDescription: String? = null) : Observable {
-    private val serialPort = if (portDescription != null) {
-        SerialPort.getCommPort(portDescription)
-    } else {
-        SerialPort.getCommPorts()[0]
-    }
+    private val serialPort: SerialPort?
 
     override val changeSupport = PropertyChangeSupport(this)
 
@@ -16,30 +12,34 @@ class SerialConnection(portDescription: String? = null) : Observable {
         println("Available serial ports:")
         SerialPort.getCommPorts().forEach { port -> println(port.descriptivePortName) }
 
-        serialPort.openPort()
-        serialPort.addDataListener(object : SerialPortDataListener {
-            val buffer = mutableListOf<Byte>()
+        serialPort = if (portDescription != null) {
+            SerialPort.getCommPort(portDescription)
+        } else {
+            SerialPort.getCommPorts().getOrNull(0)
+        }
 
-            override fun getListeningEvents() = SerialPort.LISTENING_EVENT_DATA_RECEIVED
+        if (serialPort != null) {
+            serialPort.openPort()
+            serialPort.addDataListener(object : SerialPortDataListener {
+                val buffer = mutableListOf<Byte>()
 
-            override fun serialEvent(event: SerialPortEvent) {
-                event.receivedData.forEach { byte -> buffer.add(byte) }
-                if ('\n'.code.toByte() in buffer) {
-                    val message = buffer.takeWhile { it != '\r'.code.toByte() }
-                    message.forEach { _ -> buffer.removeFirst() }
-                    buffer.removeFirst()
-                    buffer.removeFirst()
+                override fun getListeningEvents() = SerialPort.LISTENING_EVENT_DATA_RECEIVED
 
-                    val properMessage = message.joinToString("") { byte -> byte.toInt().toChar().toString() }
-                    println(properMessage)
-                    firePropertyChange("", JoystickState.parseFrom(properMessage))
+                override fun serialEvent(event: SerialPortEvent) {
+                    event.receivedData.forEach { byte -> buffer.add(byte) }
+                    if ('\n'.code.toByte() in buffer) {
+                        val message = buffer.takeWhile { it != '\r'.code.toByte() }
+                        message.forEach { _ -> buffer.removeFirst() }
+                        buffer.removeFirst()
+                        buffer.removeFirst()
+
+                        val properMessage = message.joinToString("") { byte -> byte.toInt().toChar().toString() }
+                        println(properMessage)
+                        firePropertyChange("", JoystickState.parseFrom(properMessage))
+                    }
+
                 }
-
-            }
-        })
+            })
+        }
     }
-}
-
-fun main() {
-    SerialConnection()
 }

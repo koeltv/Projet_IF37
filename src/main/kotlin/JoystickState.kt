@@ -6,14 +6,25 @@ data class JoystickState(
     val buttons: List<Boolean>
 ) {
     companion object {
-        private val idleX = 489 - 10..489 + 10
-        private val idleY = 517 - 10..517 + 10
+        private val mainXDefaultState = config[JOYSTICK][MAIN_AXIS][DEFAULT_POSITION][X].intValue()
+        private val mainYDefaultState = config[JOYSTICK][MAIN_AXIS][DEFAULT_POSITION][Y].intValue()
+        private val mainMargin = config[JOYSTICK][MAIN_AXIS][DEFAULT_POSITION][MARGIN].intValue()
+
+        private val mainIdleXRange = mainXDefaultState byAbout mainMargin
+        private val mainIdleYRange = mainYDefaultState byAbout mainMargin
+
+        private val secondaryXDefaultState = config[JOYSTICK][SECONDARY_AXIS][DEFAULT_POSITION][X].intValue()
+        private val secondaryYDefaultState = config[JOYSTICK][SECONDARY_AXIS][DEFAULT_POSITION][Y].intValue()
+        private val secondaryMargin = config[JOYSTICK][SECONDARY_AXIS][DEFAULT_POSITION][MARGIN].intValue()
+
+        private val secondaryIdleXRange = secondaryXDefaultState byAbout secondaryMargin
+        private val secondaryIdleYRange = secondaryYDefaultState byAbout secondaryMargin
 
         private val joystickStateRegex = Regex("Main:(\\d+), (\\d+)\\|Secondary:(\\d+), (\\d+)\\|Buttons:(\\d(, \\d)+)")
 
         val defaultState = JoystickState(
-            512 to 512,
-            512 to 512,
+            mainXDefaultState to mainYDefaultState,
+            secondaryXDefaultState to secondaryYDefaultState,
             listOf(false, false, false, false, false, false)
         )
 
@@ -39,6 +50,6 @@ data class JoystickState(
         }"
     }
 
-    fun mainAxisWasMoved() = mainAxis.x !in idleX || mainAxis.y !in idleY
-    fun secondaryAxisWasMoved() = secondaryAxis.x !in idleX || secondaryAxis.y !in idleY
+    fun mainAxisWasMoved() = mainAxis.x !in mainIdleXRange || mainAxis.y !in mainIdleYRange
+    fun secondaryAxisWasMoved() = secondaryAxis.x !in secondaryIdleXRange || secondaryAxis.y !in secondaryIdleYRange
 }

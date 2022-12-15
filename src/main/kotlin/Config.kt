@@ -15,4 +15,9 @@ const val CONTROL_MOUSE = "CONTROL_MOUSE"
 const val ON_CLICK = "ON_CLICK"
 const val BUTTONS = "BUTTONS"
 
+const val DEFAULT_POSITION = "DEFAULT_POSITION"
+const val MARGIN = "MARGIN"
+const val X = "X"
+const val Y = "Y"
+
 val config: JsonNode = jacksonObjectMapper().readTree(File("src/main/resources/actions.json"))

@@ -6,7 +6,8 @@
       "CLICK_REVERSED": false,
       "DEFAULT_POSITION": {
         "X": 489,
-        "Y": 517
+        "Y": 517,
+        "MARGIN": 10
       }
     },
     "SECONDARY_AXIS": {
@@ -15,7 +16,8 @@
       "CLICK_REVERSED": false,
       "DEFAULT_POSITION": {
         "X": 489,
-        "Y": 517
+        "Y": 517,
+        "MARGIN": 10
       }
     },
     "BUTTONS": [

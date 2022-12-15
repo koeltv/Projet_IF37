@@ -36,7 +36,7 @@ class VoiceRecognition : Observable {
     }
 
     private fun setupVoiceRecognition() {
-        var notAddedConfigs = config[VOICE][ACTIONS].fields().asSequence().map { (key, value) -> key to value }.toMap()
+        val voiceActions = config[VOICE][ACTIONS].fields().asSequence().map { (key, value) -> key to value }.toMap()
 
         val grammarFilePath = "src/main/resources/grammar"
         val grammarFile = File("$grammarFilePath.grxml")
@@ -44,10 +44,8 @@ class VoiceRecognition : Observable {
         var openingEncountered = false
         grammarFile.useLines {
             it.forEach { line ->
-                notAddedConfigs = notAddedConfigs.filter { conf -> !line.contains(conf.key.uppercase()) }
-
                 if (openingEncountered && line.contains("</one-of>")) {
-                    notAddedConfigs.forEach { conf ->
+                    voiceActions.forEach { conf ->
                         grammarFileTemp.appendText(
                             """
             <item>${conf.key.lowercase()}
