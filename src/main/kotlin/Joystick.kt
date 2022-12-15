@@ -69,7 +69,12 @@ fun main() {
     Thread(joystick).start()
 
     //Demo key input
-    KeyEventDemo.createAndShowGUI().addListener(joystick)
+    try {
+        val enableDemo = System.getenv("demo").toBoolean()
+        if (enableDemo) {
+            KeyEventDemo.createAndShowGUI().addListener(joystick)
+        }
+    } catch (ignored: NullPointerException) {}
 
     //Serial link
     SerialConnection("COM3").addListener(joystick)
