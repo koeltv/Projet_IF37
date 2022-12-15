@@ -2,18 +2,28 @@
   "JOYSTICK": {
     "MAIN_AXIS": {
       "CONTROL_MOUSE": true,
-      "ON_CLICK": "A"
+      "ON_CLICK": "A",
+      "CLICK_REVERSED": false,
+      "DEFAULT_POSITION": {
+        "X": 489,
+        "Y": 517
+      }
     },
     "SECONDARY_AXIS": {
       "CONTROL_MOUSE": false,
-      "ON_CLICK": "B"
+      "ON_CLICK": "B",
+      "CLICK_REVERSED": false,
+      "DEFAULT_POSITION": {
+        "X": 489,
+        "Y": 517
+      }
     },
     "BUTTONS": [
       "X", "Y", "A", "B"
     ]
   },
   "VOICE": {
-    "ENABLED": true,
+    "ENABLED": false,
     "ACTIONS": {
       "CLIQUE": "B",
       "TEST": "A"

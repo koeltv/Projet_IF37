@@ -18,7 +18,6 @@ class Joystick : PropertyChangeListener, Runnable {
                     joystickState = JoystickState(joystickState.mainAxis, event, joystickState.buttons)
                 }
             }
-            else -> error("Unknown event: $event")
         }
     }
 
@@ -40,25 +39,29 @@ class Joystick : PropertyChangeListener, Runnable {
                     UserInput.mouseMove(newCoordinates)
                 }
             }
+            Thread.sleep(10)
         }
     }
 
     private fun runButtons() {
-        joystickState.buttons.forEachIndexed { index, buttonPressed ->
-            val action = when (index) {
-                JoystickState.MAIN_TRIGGER -> config[JOYSTICK][MAIN_AXIS][ON_CLICK].textValue()
-                JoystickState.SECONDARY_TRIGGER -> config[JOYSTICK][SECONDARY_AXIS][ON_CLICK].textValue()
-                else -> config[JOYSTICK][BUTTONS].toList()[index-2].textValue()
-            }
+        while (!Thread.currentThread().isInterrupted) {
+            joystickState.buttons.forEachIndexed { index, buttonPressed ->
+                val action = when (index) {
+                    JoystickState.MAIN_TRIGGER -> config[JOYSTICK][MAIN_AXIS][ON_CLICK].textValue()
+                    JoystickState.SECONDARY_TRIGGER -> config[JOYSTICK][SECONDARY_AXIS][ON_CLICK].textValue()
+                    else -> config[JOYSTICK][BUTTONS].toList()[index - 2].textValue()
+                }
 
-            if (buttonPressed) UserInput.trigger(action)
-            else UserInput.release(action)
+                if (buttonPressed) UserInput.trigger(action)
+                else UserInput.release(action)
+            }
+            Thread.sleep(10)
         }
     }
 
     private fun convertToScreenCoordinates(point: Point): Point {
         val (x, y) = MouseInfo.getPointerInfo().location
-        return x + (point.x - 512) to y + (point.y - 512)
+        return x + (point.x - 489) / 10 to y + (point.y - 517) / 10
     }
 
 
@@ -74,10 +77,11 @@ fun main() {
         if (enableDemo) {
             KeyEventDemo.createAndShowGUI().addListener(joystick)
         }
-    } catch (ignored: NullPointerException) {}
+    } catch (ignored: NullPointerException) {
+    }
 
     //Serial link
-    SerialConnection("COM3").addListener(joystick)
+    SerialConnection().addListener(joystick)
 
     //Voice recognition
     if (config[VOICE][ENABLED].asBoolean()) {

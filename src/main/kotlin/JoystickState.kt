@@ -6,7 +6,10 @@ data class JoystickState(
     val buttons: List<Boolean>
 ) {
     companion object {
-        private val joystickStateRegex = Regex("Main:(\\d)+, (\\d)+\\|Secondary:(\\d)+, (\\d)+\\|Buttons:(.+)")
+        private val idleX = 489 - 10..489 + 10
+        private val idleY = 517 - 10..517 + 10
+
+        private val joystickStateRegex = Regex("Main:(\\d+), (\\d+)\\|Secondary:(\\d+), (\\d+)\\|Buttons:(\\d(, \\d)+)")
 
         val defaultState = JoystickState(
             512 to 512,
@@ -23,7 +26,7 @@ data class JoystickState(
                     JoystickState(
                         mainX.toInt() to mainY.toInt(),
                         secondX.toInt() to secondY.toInt(),
-                        buttons.split(", ").map { s -> s.toBooleanStrict() }
+                        buttons.split(", ").map { s -> s == "1" }
                     )
                 }
         }
@@ -31,12 +34,11 @@ data class JoystickState(
 
     override fun toString(): String {
         return "Main:${mainAxis.x}, ${mainAxis.y}|Secondary:${secondaryAxis.x}, ${secondaryAxis.y}|Buttons:${
-            buttons.joinToString(
-                ", "
-            )
+            buttons
+                .joinToString(", ")
         }"
     }
 
-    fun mainAxisWasMoved() = mainAxis.x != 512 || mainAxis.y != 512
-    fun secondaryAxisWasMoved() = secondaryAxis.x != 512 || secondaryAxis.y != 512
+    fun mainAxisWasMoved() = mainAxis.x !in idleX || mainAxis.y !in idleY
+    fun secondaryAxisWasMoved() = secondaryAxis.x !in idleX || secondaryAxis.y !in idleY
 }
