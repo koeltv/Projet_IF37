@@ -20,8 +20,13 @@
             <item>clique
                 <tag>out="ordre=CLIQUE"</tag>
             </item>
+
             <item>test
                 <tag>out="ordre=TEST"</tag>
+            </item>
+
+            <item>clique droit
+                <tag>out="ordre=CLIQUE DROIT"</tag>
             </item>
         </one-of>
     </rule>

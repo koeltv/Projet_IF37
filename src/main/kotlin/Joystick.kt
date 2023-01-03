@@ -23,12 +23,20 @@ class Joystick : PropertyChangeListener, Runnable {
 
     override fun run() {
         Thread(this::runButtons).start()
+        runJoysticks()
+    }
+
+    private fun runJoysticks() {
         while (!Thread.currentThread().isInterrupted) {
             if (config[JOYSTICK][MAIN_AXIS][CONTROL_MOUSE].asBoolean()) {
                 if (joystickState.mainAxisWasMoved()) {
                     val newCoordinates =
                         convertToScreenCoordinates(joystickState.mainAxis).fixCoordinates(MouseInfo.getPointerInfo().location.x)
                     UserInput.mouseMove(newCoordinates)
+                }
+            } else {
+                if (joystickState.mainAxisWasMoved()) {
+                    triggerJoystickActions(MAIN_AXIS)
                 }
             }
 
@@ -38,8 +46,48 @@ class Joystick : PropertyChangeListener, Runnable {
                         convertToScreenCoordinates(joystickState.secondaryAxis).fixCoordinates(MouseInfo.getPointerInfo().location.x)
                     UserInput.mouseMove(newCoordinates)
                 }
+            } else {
+                if (joystickState.secondaryAxisWasMoved()) {
+                    triggerJoystickActions(SECONDARY_AXIS)
+                }
             }
             Thread.sleep(10)
+        }
+    }
+
+    //Functions used to make zones for the joystick
+    val f1 = fun (x: Int) = 0.5 * x + config[JOYSTICK][MAIN_AXIS][DEFAULT_POSITION][X].intValue()
+    val f2 = fun (x: Int) = -0.5 * x + config[JOYSTICK][MAIN_AXIS][DEFAULT_POSITION][X].intValue()
+    val f3 = fun (x: Int) = 2 * x + config[JOYSTICK][MAIN_AXIS][DEFAULT_POSITION][X].intValue()
+    val f4 = fun (x: Int) = -2 * x + config[JOYSTICK][MAIN_AXIS][DEFAULT_POSITION][X].intValue()
+
+    private fun triggerJoystickActions(axis: String) {
+        val unusedMovements = mutableListOf("UP", "DOWN", "LEFT", "RIGHT")
+        val usedMovements = mutableListOf<String>()
+
+        val (x, y) = joystickState.mainAxis
+        if (y <= f1(x) && y <= f2(x)) {
+            unusedMovements.remove("UP")
+            usedMovements.add("UP")
+        }
+        if (y >= f1(x) && y >= f2(x)) {
+            unusedMovements.remove("DOWN")
+            usedMovements.add("DOWN")
+        }
+        if (y <= f3(x) && y <= f4(x)) {
+            unusedMovements.remove("LEFT")
+            usedMovements.add("LEFT")
+        }
+        if (y >= f3(x) && y >= f4(x)) {
+            unusedMovements.remove("RIGHT")
+            usedMovements.add("RIGHT")
+        }
+
+        for (movement in usedMovements) {
+            UserInput.trigger(config[JOYSTICK][axis][CONTROLS][movement].textValue())
+        }
+        for (movement in unusedMovements) {
+            UserInput.release(config[JOYSTICK][axis][CONTROLS][movement].textValue())
         }
     }
 
@@ -84,12 +132,18 @@ fun main() {
     SerialConnection().addListener(joystick)
 
     //Voice recognition
+    val voiceRecognition = VoiceRecognition()
     if (config[VOICE][ENABLED].asBoolean()) {
-        VoiceRecognition().addListener(joystick)
+        voiceRecognition.addListener(joystick)
     }
 
     //Eye tracking
     if (config[EYE_TRACKING][ENABLED].asBoolean()) {
         ScreenScaleConverter(EyeTracking()).addListener(joystick)
     }
+
+    //When exiting
+    Runtime.getRuntime().addShutdownHook(Thread {
+        voiceRecognition.close()
+    })
 }

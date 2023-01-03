@@ -3,15 +3,21 @@ import fr.dgac.ivy.IvyException
 import java.beans.PropertyChangeSupport
 import java.io.File
 
-class VoiceRecognition : Observable {
+class VoiceRecognition : Observable, AutoCloseable {
     private val bus: Ivy = Ivy("Voice_recognition", "Voice_recognition is ready", null)
 
     override val changeSupport = PropertyChangeSupport(this)
 
     private val actions = config[VOICE][ACTIONS]
 
+    private val voiceRecognition: Process
+
     init {
         setupVoiceRecognition()
+
+        voiceRecognition = Runtime.getRuntime()
+            .exec("src/main/resources/sra5 -b 127.255.255.255:2010 -g src/main/resources/grammar.grxml -p on")
+
         try {
             bus.start("127.255.255.255:2010")
             bus.bindMsg("^sra5 Parsed=(.*)=(.*) Confidence=(.*) NP=.*") { client, args ->
@@ -19,7 +25,7 @@ class VoiceRecognition : Observable {
                 val action = actions[args[1]].textValue()!!
                 val confidence = args[2].replace(",", ".").toFloat()
 
-                if (confidence > 0.70) {
+                if (confidence > config[VOICE][CONFIDENCE].doubleValue()) {
                     println("$action passing !")
                     UserInput.triggerOnce(action)
                 } else { // Reconnaissance trop faible
@@ -42,9 +48,11 @@ class VoiceRecognition : Observable {
         val grammarFile = File("$grammarFilePath.grxml")
         val grammarFileTemp = File("${grammarFilePath}_temp.grxml")
         var openingEncountered = false
+        var closingEncountered = false
         grammarFile.useLines {
             it.forEach { line ->
                 if (openingEncountered && line.contains("</one-of>")) {
+                    grammarFileTemp.appendText("        <one-of>")
                     voiceActions.forEach { conf ->
                         grammarFileTemp.appendText(
                             """
@@ -54,17 +62,18 @@ class VoiceRecognition : Observable {
 """
                         )
                     }
+                    closingEncountered = true
                 }
-                grammarFileTemp.appendText("$line\n")
+
+                if (!openingEncountered || closingEncountered) {
+                    grammarFileTemp.appendText("$line\n")
+                }
                 if (!openingEncountered) openingEncountered = line.contains("<rule id=\"ordre\">")
             }
         }
 
         grammarFile.delete()
         grammarFileTemp.renameTo(grammarFile)
-
-        Runtime.getRuntime()
-            .exec("src/main/resources/sra5 -b 127.255.255.255:2010 -g src/main/resources/grammar.grxml -p on")
     }
 
     private fun sendResponse(message: String) {
@@ -72,6 +81,10 @@ class VoiceRecognition : Observable {
             bus.sendMsg("ppilot5 Say=$message")
         } catch (_: IvyException) {
         }
+    }
+
+    override fun close() {
+        voiceRecognition.destroy()
     }
 }
 

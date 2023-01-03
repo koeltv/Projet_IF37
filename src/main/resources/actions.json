@@ -2,6 +2,12 @@
   "JOYSTICK": {
     "MAIN_AXIS": {
       "CONTROL_MOUSE": true,
+      "CONTROLS": {
+        "UP": "Z",
+        "LEFT": "Q",
+        "DOWN": "S",
+        "RIGHT": "D"
+      },
       "ON_CLICK": "A",
       "CLICK_REVERSED": false,
       "DEFAULT_POSITION": {
@@ -12,6 +18,12 @@
     },
     "SECONDARY_AXIS": {
       "CONTROL_MOUSE": false,
+      "CONTROLS": {
+        "UP": "Z",
+        "LEFT": "Q",
+        "DOWN": "S",
+        "RIGHT": "D"
+      },
       "ON_CLICK": "B",
       "CLICK_REVERSED": false,
       "DEFAULT_POSITION": {
@@ -26,9 +38,11 @@
   },
   "VOICE": {
     "ENABLED": true,
+    "CONFIDENCE": 0.70,
     "ACTIONS": {
       "CLIQUE": "B",
-      "TEST": "A"
+      "TEST": "A",
+      "CLIQUE DROIT": "BUTTON1"
     }
   },
   "EYE_TRACKING": {

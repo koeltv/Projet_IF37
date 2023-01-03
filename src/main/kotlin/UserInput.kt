@@ -6,6 +6,8 @@ import java.awt.event.KeyEvent
 object UserInput {
     private val robot = Robot()
 
+    private val keyPressed = mutableSetOf<String>()
+
     private val keyMap = (0..1000000).mapNotNull { i ->
         val key = KeyEvent.getKeyText(i)
         if (key.contains("Unknown")) null
@@ -19,8 +21,11 @@ object UserInput {
     )
 
     fun trigger(action: String) {
-        if (action in keyMap) robot.keyPress(keyMap[action]!!)
-        else robot.mousePress(mouseAction[action]!!)
+        if (action !in keyPressed) {
+            if (action in keyMap) robot.keyPress(keyMap[action]!!)
+            else robot.mousePress(mouseAction[action]!!)
+            keyPressed.add(action)
+        }
     }
 
     fun triggerOnce(action: String) {
@@ -37,6 +42,7 @@ object UserInput {
     fun release(action: String) {
         if (action in keyMap) robot.keyRelease(keyMap[action]!!)
         else robot.mouseRelease(mouseAction[action]!!)
+        keyPressed.remove(action)
     }
 
     fun mouseMove(point: Point) {
