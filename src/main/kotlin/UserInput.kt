@@ -21,7 +21,7 @@ object UserInput {
     )
 
     fun trigger(action: String) {
-        if (action !in keyPressed) {
+        if (action.isNotBlank() && action !in keyPressed) {
             if (action in keyMap) robot.keyPress(keyMap[action]!!)
             else robot.mousePress(mouseAction[action]!!)
             keyPressed.add(action)
@@ -29,7 +29,7 @@ object UserInput {
     }
 
     fun triggerOnce(action: String) {
-        if (action in keyMap) {
+        if (action.isNotBlank() && action in keyMap) {
             robot.keyPress(keyMap[action]!!)
             robot.keyRelease(keyMap[action]!!)
         }

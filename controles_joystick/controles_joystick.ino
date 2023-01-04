@@ -50,8 +50,8 @@ void loop() {
     y2Value = analogRead(SECONDY_PIN);
     
     // Read the button1 value
-    b1Value = button1.getState();
-    b2Value = button2.getState();
+    b1Value = !button1.getState();
+    b2Value = !button2.getState();
     
     buttonState1 = digitalRead(BUTTON1_PIN);
     buttonState2 = digitalRead(BUTTON2_PIN);
@@ -65,9 +65,9 @@ void loop() {
     Serial.print(y1Value);
 
     Serial.print("|Secondary:");
-    Serial.print(x1Value);
+    Serial.print(x2Value);
     Serial.print(", ");
-    Serial.print(y1Value);
+    Serial.print(y2Value);
 
     Serial.print("|Buttons:");
     Serial.print(b1Value);

@@ -8,11 +8,11 @@
         "DOWN": "S",
         "RIGHT": "D"
       },
-      "ON_CLICK": "A",
+      "ON_CLICK": "F",
       "CLICK_REVERSED": false,
       "DEFAULT_POSITION": {
-        "X": 489,
-        "Y": 517,
+        "X": 497,
+        "Y": 512,
         "MARGIN": 10
       }
     },
@@ -24,11 +24,11 @@
         "DOWN": "S",
         "RIGHT": "D"
       },
-      "ON_CLICK": "B",
+      "ON_CLICK": "K",
       "CLICK_REVERSED": false,
       "DEFAULT_POSITION": {
-        "X": 489,
-        "Y": 517,
+        "X": 500,
+        "Y": 509,
         "MARGIN": 10
       }
     },

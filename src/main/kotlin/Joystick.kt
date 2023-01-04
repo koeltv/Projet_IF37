@@ -11,6 +11,7 @@ class Joystick : PropertyChangeListener, Runnable {
             is JoystickState -> {
                 joystickState = event
             }
+
             is Point -> {
                 if (evt.propertyName == MAIN_AXIS) {
                     joystickState = JoystickState(event, joystickState.secondaryAxis, joystickState.buttons)
@@ -35,9 +36,7 @@ class Joystick : PropertyChangeListener, Runnable {
                     UserInput.mouseMove(newCoordinates)
                 }
             } else {
-                if (joystickState.mainAxisWasMoved()) {
-                    triggerJoystickActions(MAIN_AXIS)
-                }
+                triggerJoystickActions(MAIN_AXIS)
             }
 
             if (config[JOYSTICK][SECONDARY_AXIS][CONTROL_MOUSE].asBoolean()) {
@@ -47,38 +46,36 @@ class Joystick : PropertyChangeListener, Runnable {
                     UserInput.mouseMove(newCoordinates)
                 }
             } else {
-                if (joystickState.secondaryAxisWasMoved()) {
-                    triggerJoystickActions(SECONDARY_AXIS)
-                }
+                triggerJoystickActions(SECONDARY_AXIS)
             }
             Thread.sleep(10)
         }
     }
 
     //Functions used to make zones for the joystick
-    val f1 = fun (x: Int) = 0.5 * x + config[JOYSTICK][MAIN_AXIS][DEFAULT_POSITION][X].intValue()
-    val f2 = fun (x: Int) = -0.5 * x + config[JOYSTICK][MAIN_AXIS][DEFAULT_POSITION][X].intValue()
-    val f3 = fun (x: Int) = 2 * x + config[JOYSTICK][MAIN_AXIS][DEFAULT_POSITION][X].intValue()
-    val f4 = fun (x: Int) = -2 * x + config[JOYSTICK][MAIN_AXIS][DEFAULT_POSITION][X].intValue()
+    val f1 = fun(axis: String, x: Int) = 0.5 * x + config[JOYSTICK][axis][DEFAULT_POSITION][X].intValue()
+    val f2 = fun(axis: String, x: Int) = -0.5 * x + config[JOYSTICK][axis][DEFAULT_POSITION][X].intValue()
+    val f3 = fun(axis: String, x: Int) = 2 * x + config[JOYSTICK][axis][DEFAULT_POSITION][X].intValue()
+    val f4 = fun(axis: String, x: Int) = -2 * x + config[JOYSTICK][axis][DEFAULT_POSITION][X].intValue()
 
     private fun triggerJoystickActions(axis: String) {
         val unusedMovements = mutableListOf("UP", "DOWN", "LEFT", "RIGHT")
         val usedMovements = mutableListOf<String>()
 
-        val (x, y) = joystickState.mainAxis
-        if (y <= f1(x) && y <= f2(x)) {
+        val (x, y) = if (axis == MAIN_AXIS) joystickState.mainAxis else joystickState.secondaryAxis
+        if (y <= f1(axis, x) && y <= f2(axis, x)) {
             unusedMovements.remove("UP")
             usedMovements.add("UP")
         }
-        if (y >= f1(x) && y >= f2(x)) {
+        if (y >= f1(axis, x) && y >= f2(axis, x)) {
             unusedMovements.remove("DOWN")
             usedMovements.add("DOWN")
         }
-        if (y <= f3(x) && y <= f4(x)) {
+        if (y <= f3(axis, x) && y <= f4(axis, x)) {
             unusedMovements.remove("LEFT")
             usedMovements.add("LEFT")
         }
-        if (y >= f3(x) && y >= f4(x)) {
+        if (y >= f3(axis, x) && y >= f4(axis, x)) {
             unusedMovements.remove("RIGHT")
             usedMovements.add("RIGHT")
         }
@@ -111,8 +108,6 @@ class Joystick : PropertyChangeListener, Runnable {
         val (x, y) = MouseInfo.getPointerInfo().location
         return x + (point.x - 489) / 10 to y + (point.y - 517) / 10
     }
-
-
 }
 
 fun main() {
