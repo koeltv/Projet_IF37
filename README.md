@@ -23,6 +23,17 @@ Chaque action permet de déclencher une combinaison de touches clavier et/ou cli
 
 Ce logiciel est également capable d'effectuer du suivi du regard à travers la librairie [OpenCV](https://opencv.org/). Cette modalité est néanmoins plus difficile à utiliser avec une simple webcam et reste en développement pour l'instant, mais vous pouvez l'utiliser en l'activant dans le fichier `actions.json`.
 
+## Modalité supplémentaire ?
+
+Il vous est facile de rajouter des modalités. Pour cela, créez une nouvelle classe qui hérite de la classe `Observable` et ajouter une instance dans la fonction main comme ceci :
+```kotlin
+fun main() {
+    ...
+    MaModalite().addListener(joystick)
+}
+```
+Vous pourrez alors déclencher vous-même des actions avec la classe `UserInput` ou en propageant un événement contenant un `Point` ou un `JoystickState`, permettant respectivement de changer la valeur d'un axe ou du Joystick complet.
+
 ## Configuration
 
 Toute la configuration du logiciel se fait à travers le fichier `actions.json`, cela inclut :
