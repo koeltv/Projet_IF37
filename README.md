@@ -21,12 +21,12 @@ Chaque action permet de déclencher une combinaison de touches clavier et/ou cli
 
 ## Modalité Visuel (WIP)
 
-Ce logiciel est également capable d'effectuer du suivi du regard à travers la librairie [OpenCV](https://opencv.org/). Cette modalité est néanmoins plus difficile à utiliser avec une simple webcam et reste en développement pour l'instant mais vous pouvez l'utilisé en l'activant dans le fichier `actions.json`.
+Ce logiciel est également capable d'effectuer du suivi du regard à travers la librairie [OpenCV](https://opencv.org/). Cette modalité est néanmoins plus difficile à utiliser avec une simple webcam et reste en développement pour l'instant, mais vous pouvez l'utiliser en l'activant dans le fichier `actions.json`.
 
 ## Configuration
 
 Toute la configuration du logiciel se fait à travers le fichier `actions.json`, cela inclut :
- - Les actions du joystick
+ - Les actions du Joystick
  - Les déclencheurs vocaux
  - Le suivi du regard
  - Tout autre paramètre du logiciel
