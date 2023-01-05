@@ -1,11 +1,17 @@
-import java.awt.MouseInfo
 import java.awt.Point
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
 
+/**
+ * Handle the action from the Joystick, including button presses and movements of the axis.
+ */
 class Joystick : PropertyChangeListener, Runnable {
     private var joystickState = JoystickState.defaultState
 
+    /**
+     * Receive events and handle them.
+     * Events can be changes of the whole Joystick state or only of one axis.
+     */
     override fun propertyChange(evt: PropertyChangeEvent) {
         when (val event = evt.newValue) {
             is JoystickState -> {
@@ -27,13 +33,14 @@ class Joystick : PropertyChangeListener, Runnable {
         runJoysticks()
     }
 
+    /**
+     * Handle all axis movements.
+     */
     private fun runJoysticks() {
         while (!Thread.currentThread().isInterrupted) {
             if (config[JOYSTICK][MAIN_AXIS][CONTROL_MOUSE].asBoolean()) {
                 if (joystickState.mainAxisWasMoved()) {
-                    val newCoordinates =
-                        convertToScreenCoordinates(joystickState.mainAxis).fixCoordinates(MouseInfo.getPointerInfo().location.x)
-                    UserInput.mouseMove(newCoordinates)
+                    UserInput.mouseMoveToScreenCoordinates(joystickState.mainAxis)
                 }
             } else {
                 triggerJoystickActions(MAIN_AXIS)
@@ -41,9 +48,7 @@ class Joystick : PropertyChangeListener, Runnable {
 
             if (config[JOYSTICK][SECONDARY_AXIS][CONTROL_MOUSE].asBoolean()) {
                 if (joystickState.secondaryAxisWasMoved()) {
-                    val newCoordinates =
-                        convertToScreenCoordinates(joystickState.secondaryAxis).fixCoordinates(MouseInfo.getPointerInfo().location.x)
-                    UserInput.mouseMove(newCoordinates)
+                    UserInput.mouseMoveToScreenCoordinates(joystickState.secondaryAxis)
                 }
             } else {
                 triggerJoystickActions(SECONDARY_AXIS)
@@ -88,6 +93,9 @@ class Joystick : PropertyChangeListener, Runnable {
         }
     }
 
+    /**
+     * Handle all button presses
+     */
     private fun runButtons() {
         while (!Thread.currentThread().isInterrupted) {
             joystickState.buttons.forEachIndexed { index, buttonPressed ->
@@ -102,11 +110,6 @@ class Joystick : PropertyChangeListener, Runnable {
             }
             Thread.sleep(10)
         }
-    }
-
-    private fun convertToScreenCoordinates(point: Point): Point {
-        val (x, y) = MouseInfo.getPointerInfo().location
-        return x + (point.x - 489) / 10 to y + (point.y - 517) / 10
     }
 }
 

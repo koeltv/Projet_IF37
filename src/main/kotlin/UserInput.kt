@@ -1,8 +1,12 @@
+import java.awt.MouseInfo
 import java.awt.Point
 import java.awt.Robot
 import java.awt.event.InputEvent
 import java.awt.event.KeyEvent
 
+/**
+ * Handles all actions from the keyboard or mouse.
+ */
 object UserInput {
     private val robot = Robot()
 
@@ -45,7 +49,17 @@ object UserInput {
         keyPressed.remove(action)
     }
 
-    fun mouseMove(point: Point) {
+    private fun mouseMove(point: Point) {
         robot.mouseMove(point.x, point.y)
+    }
+
+    fun mouseMoveToScreenCoordinates(point: Point) {
+        val newCoordinates = convertToScreenCoordinates(point).fixCoordinates(MouseInfo.getPointerInfo().location.x)
+        mouseMove(newCoordinates)
+    }
+
+    private fun convertToScreenCoordinates(point: Point): Point {
+        val (x, y) = MouseInfo.getPointerInfo().location
+        return x + (point.x - 489) / 10 to y + (point.y - 517) / 10
     }
 }

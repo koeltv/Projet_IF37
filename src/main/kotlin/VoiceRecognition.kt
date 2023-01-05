@@ -3,6 +3,9 @@ import fr.dgac.ivy.IvyException
 import java.beans.PropertyChangeSupport
 import java.io.File
 
+/**
+ * Handle voice recognition using SRA-5
+ */
 class VoiceRecognition : Observable, AutoCloseable {
     private val bus: Ivy = Ivy("Voice_recognition", "Voice_recognition is ready", null)
 

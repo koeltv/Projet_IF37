@@ -3,6 +3,9 @@ import com.fazecast.jSerialComm.SerialPortDataListener
 import com.fazecast.jSerialComm.SerialPortEvent
 import java.beans.PropertyChangeSupport
 
+/**
+ * Handle connection with the Joystick via a serial connection.
+ */
 class SerialConnection(portDescription: String? = null) : Observable {
     private val serialPort: SerialPort?
 

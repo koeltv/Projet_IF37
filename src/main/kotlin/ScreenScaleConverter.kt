@@ -7,6 +7,9 @@ import java.beans.PropertyChangeSupport
 import java.util.*
 import kotlin.math.abs
 
+/**
+ * Restrict the eye tracking input to the screen and scale it accordingly.
+ */
 class ScreenScaleConverter(private val eyeTracking: EyeTracking): PropertyChangeListener {
     private val pcs = PropertyChangeSupport(this)
 
@@ -26,7 +29,7 @@ class ScreenScaleConverter(private val eyeTracking: EyeTracking): PropertyChange
         pcs.addPropertyChangeListener(changeListener)
     }
 
-    fun initialise() {
+    private fun initialise() {
         val scanner = Scanner(System.`in`)
         println("Look at the upper left corner and press enter")
         scanner.nextLine()
@@ -39,7 +42,7 @@ class ScreenScaleConverter(private val eyeTracking: EyeTracking): PropertyChange
         initialise(upperLeft, lowerRight)
     }
 
-    fun initialise(upperLeft: Point, lowerRight: Point) {
+    private fun initialise(upperLeft: Point, lowerRight: Point) {
         relativeDimensions = Rectangle(
             upperLeft.x.toInt(),
             upperLeft.y.toInt(),
@@ -58,7 +61,6 @@ class ScreenScaleConverter(private val eyeTracking: EyeTracking): PropertyChange
         return java.awt.Point(reversedX.toInt(), y.toInt())
     }
 
-    //upperLeft = {389, 302}, lowerRight = {414, 345}
     override fun propertyChange(evt: PropertyChangeEvent) {
         val oldFocusPoint = evt.oldValue
         val focusPoint = evt.newValue

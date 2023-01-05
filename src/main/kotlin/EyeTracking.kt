@@ -11,6 +11,9 @@ import java.beans.PropertyChangeSupport
 import kotlin.math.round
 import kotlin.math.roundToInt
 
+/**
+ * Handle eye tracking via a webcam (WIP).
+ */
 class EyeTracking {
     private val pcs = PropertyChangeSupport(this)
     private val cascadeClassifier = CascadeClassifier("src/main/resources/haarcascade_eye.xml")

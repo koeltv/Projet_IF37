@@ -22,4 +22,7 @@ const val MARGIN = "MARGIN"
 const val X = "X"
 const val Y = "Y"
 
+/**
+ * Import the configuration from the actions.json file
+ */
 val config: JsonNode = jacksonObjectMapper().readTree(File("src/main/resources/actions.json"))
