@@ -30,3 +30,61 @@ Toute la configuration du logiciel se fait à travers le fichier `actions.json`,
  - Les déclencheurs vocaux
  - Le suivi du regard
  - Tout autre paramètre du logiciel
+
+Voici la description complète de la config:
+```yaml
+{
+  "JOYSTICK": { paramètres liés au Joystick
+    "MAIN_AXIS": { paramètres liés à l'axe principal (manche du joystick)
+      "CONTROL_MOUSE": true, si l'axe principal à le contrôle de la souris
+      "CONTROLS": { actions si l'axe principal ne contrôle pas la souris
+        "UP": "Z", vers le haut
+        "LEFT": "Q", vers la gauche
+        "DOWN": "S", vers le bas
+        "RIGHT": "D" vers la droite
+      },
+      "ON_CLICK": "F", sur clique (pression vertical) de l'axe principal
+      "CLICK_REVERSED": false, si le bouton est inversé
+      "DEFAULT_POSITION": { position par défaut, à renseigner pour éviter le drift
+        "X": 497,
+        "Y": 512,
+        "MARGIN": 10 indique une "zone morte" au tour de la position par défaut
+      }
+    },
+    "SECONDARY_AXIS": { paramètres liés à l'axe secondaire (joystick sur le manche)
+      "CONTROL_MOUSE": false, si l'axe secondaire à le contrôle de la souris
+      "CONTROLS": { actions si l'axe secondaire ne contrôle pas la souris
+        "UP": "Z", vers le haut
+        "LEFT": "Q", vers la gauche
+        "DOWN": "S", vers le bas
+        "RIGHT": "D" vers la droite
+      },
+      "ON_CLICK": "K", sur clique (pression vertical) de l'axe principal
+      "CLICK_REVERSED": false, si le bouton est inversé
+      "DEFAULT_POSITION": { position par défaut, à renseigner pour éviter le drift
+        "X": 500,
+        "Y": 509,
+        "MARGIN": 10 indique une "zone morte" au tour de la position par défaut
+      }
+    },
+    "BUTTONS": [ action des boutons, l'ordre est important (ordre de réception)
+      "X", "Y", "A", "B"
+    ]
+  },
+  "VOICE": { paramètres liés à la reconnaissance vocale
+    "ENABLED": true, active ou désactive la reconnaissance vocale
+    "CONFIDENCE": 0.70, degré de confiance nécessaire pour valider une entrée
+    "ACTIONS": { commandes vocales reconnues sous le format suivant
+      "COMMANDE VOCALE": "ACTION"
+    }
+  },
+  "EYE_TRACKING": { paramètres liés au suivi du regard (WIP)
+    "ENABLED": false, active ou désactive le suivi du regard
+  }
+}
+```
+
+### Actions possibles
+
+Les actions possibles incluent les actions souris (BUTTON1, BUTTON2, BUTTON3) et clavier mis à disposition dans la classe Java `java.awt.event.KeyEvent` disponible [ici](https://docs.oracle.com/javase/7/docs/api/java/awt/event/KeyEvent.html) (retirez les "VK_").  
+Vous pouvez également retrouver la liste complète [dans ce fichier](https://github.com/koeltv/Projet_IF37/blob/master/Actions.md).

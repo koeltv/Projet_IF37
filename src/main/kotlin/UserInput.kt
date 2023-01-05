@@ -36,8 +36,7 @@ object UserInput {
         if (action.isNotBlank() && action in keyMap) {
             robot.keyPress(keyMap[action]!!)
             robot.keyRelease(keyMap[action]!!)
-        }
-        else {
+        } else {
             robot.mousePress(mouseAction[action]!!)
             robot.mouseRelease(mouseAction[action]!!)
         }
