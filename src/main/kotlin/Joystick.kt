@@ -58,31 +58,31 @@ class Joystick : PropertyChangeListener, Runnable {
     }
 
     //Functions used to make zones for the joystick
-    val f1 = fun(axis: String, x: Int) = 0.5 * x + config[JOYSTICK][axis][DEFAULT_POSITION][X].intValue()
-    val f2 = fun(axis: String, x: Int) = -0.5 * x + config[JOYSTICK][axis][DEFAULT_POSITION][X].intValue()
+    val f1 = fun(axis: String, x: Int) = 0.5 * x + config[JOYSTICK][axis][DEFAULT_POSITION][Y].intValue()
+    val f2 = fun(axis: String, x: Int) = -0.5 * x + config[JOYSTICK][axis][DEFAULT_POSITION][Y].intValue()
     val f3 = fun(axis: String, x: Int) = 2 * x + config[JOYSTICK][axis][DEFAULT_POSITION][X].intValue()
     val f4 = fun(axis: String, x: Int) = -2 * x + config[JOYSTICK][axis][DEFAULT_POSITION][X].intValue()
 
     private fun triggerJoystickActions(axis: String) {
-        val unusedMovements = mutableListOf("UP", "DOWN", "LEFT", "RIGHT")
+        val unusedMovements = mutableListOf(UP, DOWN, LEFT, RIGHT)
         val usedMovements = mutableListOf<String>()
 
         val (x, y) = if (axis == MAIN_AXIS) joystickState.mainAxis else joystickState.secondaryAxis
         if (y <= f1(axis, x) && y <= f2(axis, x)) {
-            unusedMovements.remove("UP")
-            usedMovements.add("UP")
+            unusedMovements.remove(UP)
+            usedMovements.add(UP)
         }
         if (y >= f1(axis, x) && y >= f2(axis, x)) {
-            unusedMovements.remove("DOWN")
-            usedMovements.add("DOWN")
+            unusedMovements.remove(DOWN)
+            usedMovements.add(DOWN)
         }
         if (y <= f3(axis, x) && y <= f4(axis, x)) {
-            unusedMovements.remove("LEFT")
-            usedMovements.add("LEFT")
+            unusedMovements.remove(LEFT)
+            usedMovements.add(LEFT)
         }
         if (y >= f3(axis, x) && y >= f4(axis, x)) {
-            unusedMovements.remove("RIGHT")
-            usedMovements.add("RIGHT")
+            unusedMovements.remove(RIGHT)
+            usedMovements.add(RIGHT)
         }
 
         for (movement in usedMovements) {

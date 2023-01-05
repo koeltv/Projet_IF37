@@ -22,6 +22,11 @@ const val MARGIN = "MARGIN"
 const val X = "X"
 const val Y = "Y"
 
+const val UP = "UP"
+const val DOWN = "DOWN"
+const val LEFT = "LEFT"
+const val RIGHT = "RIGHT"
+
 /**
  * Import the configuration from the actions.json file
  */
