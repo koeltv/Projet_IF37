@@ -1,3 +1,8 @@
+import ConfigOption.*
+import demo.KeyEventDemo
+import eyeTracking.EyeTracking
+import serial.SerialConnection
+import voice.VoiceRecognition
 import java.awt.Point
 import java.beans.PropertyChangeEvent
 import java.beans.PropertyChangeListener
@@ -11,6 +16,8 @@ class Joystick : PropertyChangeListener, Runnable {
     /**
      * Receive events and handle them.
      * Events can be changes of the whole Joystick state or only of one axis.
+     *
+     * @param evt The event containing the new state of an axis or of the whole Joystick
      */
     override fun propertyChange(evt: PropertyChangeEvent) {
         when (val event = evt.newValue) {
@@ -19,18 +26,21 @@ class Joystick : PropertyChangeListener, Runnable {
             }
 
             is Point -> {
-                if (evt.propertyName == MAIN_AXIS) {
+                if (evt.propertyName == MAIN_AXIS()) {
                     joystickState = JoystickState(event, joystickState.secondaryAxis, joystickState.buttons)
-                } else if (evt.propertyName == SECONDARY_AXIS) {
+                } else if (evt.propertyName == SECONDARY_AXIS()) {
                     joystickState = JoystickState(joystickState.mainAxis, event, joystickState.buttons)
                 }
             }
         }
     }
 
+    /**
+     * Run a thread for the buttons and one for the axis.
+     */
     override fun run() {
         Thread(this::runButtons).start()
-        runJoysticks()
+        Thread(this::runJoysticks).start()
     }
 
     /**
@@ -38,36 +48,41 @@ class Joystick : PropertyChangeListener, Runnable {
      */
     private fun runJoysticks() {
         while (!Thread.currentThread().isInterrupted) {
-            if (config[JOYSTICK][MAIN_AXIS][CONTROL_MOUSE].asBoolean()) {
+            if (config[JOYSTICK()][MAIN_AXIS()][CONTROL_MOUSE()].asBoolean()) {
                 if (joystickState.mainAxisWasMoved()) {
-                    UserInput.mouseMoveToScreenCoordinates(joystickState.mainAxis)
+                    UserInput.mouseMoveToScreenCoordinates(MAIN_AXIS(), joystickState.mainAxis)
                 }
             } else {
-                triggerJoystickActions(MAIN_AXIS)
+                triggerJoystickActions(MAIN_AXIS())
             }
 
-            if (config[JOYSTICK][SECONDARY_AXIS][CONTROL_MOUSE].asBoolean()) {
+            if (config[JOYSTICK()][SECONDARY_AXIS()][CONTROL_MOUSE()].asBoolean()) {
                 if (joystickState.secondaryAxisWasMoved()) {
-                    UserInput.mouseMoveToScreenCoordinates(joystickState.secondaryAxis)
+                    UserInput.mouseMoveToScreenCoordinates(SECONDARY_AXIS(), joystickState.secondaryAxis)
                 }
             } else {
-                triggerJoystickActions(SECONDARY_AXIS)
+                triggerJoystickActions(SECONDARY_AXIS())
             }
             Thread.sleep(10)
         }
     }
 
     //Functions used to make zones for the joystick
-    val f1 = fun(axis: String, x: Int) = 0.5 * x + config[JOYSTICK][axis][DEFAULT_POSITION][Y].intValue()
-    val f2 = fun(axis: String, x: Int) = -0.5 * x + config[JOYSTICK][axis][DEFAULT_POSITION][Y].intValue()
-    val f3 = fun(axis: String, x: Int) = 2 * x + config[JOYSTICK][axis][DEFAULT_POSITION][X].intValue()
-    val f4 = fun(axis: String, x: Int) = -2 * x + config[JOYSTICK][axis][DEFAULT_POSITION][X].intValue()
+    val f1 = fun(axis: String, x: Int) = 0.5 * x + config[JOYSTICK()][axis][DEFAULT_POSITION()][Y()].intValue()
+    val f2 = fun(axis: String, x: Int) = -0.5 * x + config[JOYSTICK()][axis][DEFAULT_POSITION()][Y()].intValue()
+    val f3 = fun(axis: String, x: Int) = 2 * x + config[JOYSTICK()][axis][DEFAULT_POSITION()][X()].intValue()
+    val f4 = fun(axis: String, x: Int) = -2 * x + config[JOYSTICK()][axis][DEFAULT_POSITION()][X()].intValue()
 
+    /**
+     * Trigger an action when a joystick is moved.
+     * This method is only called when the corresponding axis doesn't have control over the mouse.
+     * @param axis The axis to check for an action to trigger
+     */
     private fun triggerJoystickActions(axis: String) {
         val unusedMovements = mutableListOf(UP, DOWN, LEFT, RIGHT)
-        val usedMovements = mutableListOf<String>()
+        val usedMovements = mutableListOf<ConfigOption>()
 
-        val (x, y) = if (axis == MAIN_AXIS) joystickState.mainAxis else joystickState.secondaryAxis
+        val (x, y) = if (axis == MAIN_AXIS()) joystickState.mainAxis else joystickState.secondaryAxis
         if (y <= f1(axis, x) && y <= f2(axis, x)) {
             unusedMovements.remove(UP)
             usedMovements.add(UP)
@@ -86,10 +101,10 @@ class Joystick : PropertyChangeListener, Runnable {
         }
 
         for (movement in usedMovements) {
-            UserInput.trigger(config[JOYSTICK][axis][CONTROLS][movement].textValue())
+            UserInput.trigger(config[JOYSTICK()][axis][CONTROLS()][movement()].textValue())
         }
         for (movement in unusedMovements) {
-            UserInput.release(config[JOYSTICK][axis][CONTROLS][movement].textValue())
+            UserInput.release(config[JOYSTICK()][axis][CONTROLS()][movement()].textValue())
         }
     }
 
@@ -100,9 +115,9 @@ class Joystick : PropertyChangeListener, Runnable {
         while (!Thread.currentThread().isInterrupted) {
             joystickState.buttons.forEachIndexed { index, buttonPressed ->
                 val action = when (index) {
-                    JoystickState.MAIN_TRIGGER -> config[JOYSTICK][MAIN_AXIS][ON_CLICK].textValue()
-                    JoystickState.SECONDARY_TRIGGER -> config[JOYSTICK][SECONDARY_AXIS][ON_CLICK].textValue()
-                    else -> config[JOYSTICK][BUTTONS].toList()[index - 2].textValue()
+                    JoystickState.MAIN_TRIGGER -> config[JOYSTICK()][MAIN_AXIS()][ON_CLICK()].textValue()
+                    JoystickState.SECONDARY_TRIGGER -> config[JOYSTICK()][SECONDARY_AXIS()][ON_CLICK()].textValue()
+                    else -> config[JOYSTICK()][BUTTONS()].toList()[index - 2].textValue()
                 }
 
                 if (buttonPressed) UserInput.trigger(action)
@@ -117,13 +132,14 @@ fun main() {
     val joystick = Joystick()
     Thread(joystick).start()
 
-    //Demo key input
-    try {
-        val enableDemo = System.getenv("demo").toBoolean()
-        if (enableDemo) {
-            KeyEventDemo.createAndShowGUI().addListener(joystick)
-        }
+    //Demo key input, activated if the environment variable "demo" is set
+    val enableDemo = try {
+        System.getenv("demo").toBoolean()
     } catch (ignored: NullPointerException) {
+        false
+    }
+    if (enableDemo) {
+        KeyEventDemo.createAndShowGUI().addListener(joystick)
     }
 
     //Serial link
@@ -131,13 +147,13 @@ fun main() {
 
     //Voice recognition
     val voiceRecognition = VoiceRecognition()
-    if (config[VOICE][ENABLED].asBoolean()) {
+    if (config[VOICE()][ENABLED()].asBoolean()) {
         voiceRecognition.addListener(joystick)
     }
 
     //Eye tracking
-    if (config[EYE_TRACKING][ENABLED].asBoolean()) {
-        ScreenScaleConverter(EyeTracking()).addListener(joystick)
+    if (config[EYE_TRACKING()][ENABLED()].asBoolean()) {
+        EyeTracking().addListener(joystick)
     }
 
     //When exiting

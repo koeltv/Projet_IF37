@@ -1,3 +1,9 @@
+package voice
+
+import ConfigOption.*
+import Observable
+import UserInput
+import config
 import fr.dgac.ivy.Ivy
 import fr.dgac.ivy.IvyException
 import java.beans.PropertyChangeSupport
@@ -11,8 +17,11 @@ class VoiceRecognition : Observable, AutoCloseable {
 
     override val changeSupport = PropertyChangeSupport(this)
 
-    private val actions = config[VOICE][ACTIONS]
+    private val actions = config[VOICE()][ACTIONS()]
 
+    /**
+     * SRA-5 Process
+     */
     private val voiceRecognition: Process
 
     init {
@@ -28,7 +37,7 @@ class VoiceRecognition : Observable, AutoCloseable {
                 val action = actions[args[1]].textValue()!!
                 val confidence = args[2].replace(",", ".").toFloat()
 
-                if (confidence > config[VOICE][CONFIDENCE].doubleValue()) {
+                if (confidence > config[VOICE()][CONFIDENCE()].doubleValue()) {
                     println("$action passing !")
                     UserInput.triggerOnce(action)
                 } else { // Reconnaissance trop faible
@@ -44,8 +53,11 @@ class VoiceRecognition : Observable, AutoCloseable {
         }
     }
 
+    /**
+     * Update the grammar.grxml file according to the config file.
+     */
     private fun setupVoiceRecognition() {
-        val voiceActions = config[VOICE][ACTIONS].fields().asSequence().map { (key, value) -> key to value }.toMap()
+        val voiceActions = config[VOICE()][ACTIONS()].fields().asSequence().map { (key, value) -> key to value }.toMap()
 
         val grammarFilePath = "src/main/resources/grammar"
         val grammarFile = File("$grammarFilePath.grxml")
@@ -79,6 +91,9 @@ class VoiceRecognition : Observable, AutoCloseable {
         grammarFileTemp.renameTo(grammarFile)
     }
 
+    /**
+     * Method to send back a response through the Ivy bus
+     */
     private fun sendResponse(message: String) {
         try {
             bus.sendMsg("ppilot5 Say=$message")
@@ -86,11 +101,10 @@ class VoiceRecognition : Observable, AutoCloseable {
         }
     }
 
+    /**
+     * Stop the SRA-5 Process
+     */
     override fun close() {
         voiceRecognition.destroy()
     }
-}
-
-fun main() {
-    VoiceRecognition()
 }

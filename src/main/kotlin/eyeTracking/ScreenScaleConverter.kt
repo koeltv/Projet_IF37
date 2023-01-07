@@ -1,4 +1,14 @@
+package eyeTracking
+
+import ConfigOption.*
+import JoystickState
+import Observable
+import average
+import coerceIn
+import config
+import horizontalRange
 import org.opencv.core.Point
+import verticalRange
 import java.awt.GraphicsEnvironment
 import java.awt.Rectangle
 import java.beans.PropertyChangeEvent
@@ -10,9 +20,7 @@ import kotlin.math.abs
 /**
  * Restrict the eye tracking input to the screen and scale it accordingly.
  */
-class ScreenScaleConverter(private val eyeTracking: EyeTracking): PropertyChangeListener {
-    private val pcs = PropertyChangeSupport(this)
-
+internal class ScreenScaleConverter(private val eyeTracking: EyeTracking): Observable, PropertyChangeListener {
     private val screenDimensions = GraphicsEnvironment.getLocalGraphicsEnvironment().defaultScreenDevice.defaultConfiguration.bounds
 
     private var relativeDimensions = screenDimensions
@@ -25,10 +33,11 @@ class ScreenScaleConverter(private val eyeTracking: EyeTracking): PropertyChange
         initialise()
     }
 
-    fun addListener(changeListener: PropertyChangeListener) {
-        pcs.addPropertyChangeListener(changeListener)
-    }
+    override val changeSupport = PropertyChangeSupport(this)
 
+    /**
+     * Request the user to look at two corner of the screen to set the conversion from eye movement to mouse movement.
+     */
     private fun initialise() {
         val scanner = Scanner(System.`in`)
         println("Look at the upper left corner and press enter")
@@ -42,6 +51,11 @@ class ScreenScaleConverter(private val eyeTracking: EyeTracking): PropertyChange
         initialise(upperLeft, lowerRight)
     }
 
+    /**
+     * Set the conversion from eye movement to mouse movement.
+     * @param upperLeft eye position when looking at upper left corner of the screen
+     * @param lowerRight eye position when looking at lower right corner of the screen
+     */
     private fun initialise(upperLeft: Point, lowerRight: Point) {
         relativeDimensions = Rectangle(
             upperLeft.x.toInt(),
@@ -54,6 +68,9 @@ class ScreenScaleConverter(private val eyeTracking: EyeTracking): PropertyChange
         verticalRatio = screenDimensions.height / relativeDimensions.height
     }
 
+    /**
+     * Convert the given point to an on-screen point.
+     */
     private fun convert(point: Point): java.awt.Point {
         val x = ((point.x - relativeDimensions.x) * horizontalRatio).coerceIn(screenDimensions.horizontalRange())
         val reversedX = abs(x - screenDimensions.width)
@@ -68,7 +85,13 @@ class ScreenScaleConverter(private val eyeTracking: EyeTracking): PropertyChange
             if (abs(oldFocusPoint.x - focusPoint.x) > 0.5 && abs(oldFocusPoint.y - focusPoint.y) > 0.5) {
                 val convertedPoint = convert(focusPoint)
                 println("$focusPoint, $convertedPoint")
-                pcs.firePropertyChange("Eye Tracking", null, JoystickState(convertedPoint, java.awt.Point(0, 0), emptyList()))
+
+                val joystickState = if (config[EYE_TRACKING()][AXIS()].textValue() == MAIN_AXIS()) {
+                    JoystickState(convertedPoint, java.awt.Point(0, 0), emptyList())
+                } else {
+                    JoystickState(java.awt.Point(0, 0), convertedPoint, emptyList())
+                }
+                firePropertyChange("Eye Tracking", new = joystickState)
             }
         }
     }

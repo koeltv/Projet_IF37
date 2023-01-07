@@ -46,6 +46,7 @@
     }
   },
   "EYE_TRACKING": {
-    "ENABLED": false
+    "ENABLED": false,
+    "AXIS": "MAIN_AXIS"
   }
 }

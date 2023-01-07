@@ -1,3 +1,7 @@
+package serial
+
+import JoystickState
+import Observable
 import com.fazecast.jSerialComm.SerialPort
 import com.fazecast.jSerialComm.SerialPortDataListener
 import com.fazecast.jSerialComm.SerialPortEvent
@@ -26,8 +30,15 @@ class SerialConnection(portDescription: String? = null) : Observable {
             serialPort.addDataListener(object : SerialPortDataListener {
                 val buffer = mutableListOf<Byte>()
 
+                /**
+                 * Only listen to event concerning received data
+                 */
                 override fun getListeningEvents() = SerialPort.LISTENING_EVENT_DATA_RECEIVED
 
+                /**
+                 * Store each received byte in the buffer until a line return is received,
+                 * then remove the message from the buffer and fire a property change.
+                 */
                 override fun serialEvent(event: SerialPortEvent) {
                     event.receivedData.forEach { byte -> buffer.add(byte) }
                     if ('\n'.code.toByte() in buffer) {
@@ -38,7 +49,7 @@ class SerialConnection(portDescription: String? = null) : Observable {
 
                         val properMessage = message.joinToString("") { byte -> byte.toInt().toChar().toString() }
                         println(properMessage)
-                        firePropertyChange("", JoystickState.parseFrom(properMessage))
+                        firePropertyChange("", new = JoystickState.parseFrom(properMessage))
                     }
 
                 }

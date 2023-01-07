@@ -1,7 +1,6 @@
 import org.opencv.core.Mat
 import org.opencv.core.MatOfByte
 import org.opencv.imgcodecs.Imgcodecs
-import java.awt.GraphicsEnvironment
 import java.awt.Image
 import java.awt.Point
 import java.awt.Rectangle
@@ -10,33 +9,6 @@ import javax.imageio.ImageIO
 
 operator fun Point.component1() = x
 operator fun Point.component2() = y
-
-/**
- * Dead zones are an ensemble of coordinates between screen that are not used because of a difference between
- * the expected resolution (ex: 1920x1080) and the actual resolution.
- * We only consider those on the X axis here.
- */
-private val deadZones: List<IntRange> = GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
-    .map { screen -> screen.configurations[0].bounds }.let { screenBounds ->
-        val deadZones = mutableListOf<IntRange>()
-        for (i in 1..screenBounds.lastIndex) {
-            deadZones += screenBounds[i - 1].width..screenBounds[i].x
-        }
-        deadZones
-    }
-
-/**
- * If there is more than 1 screen, take into account the possible "dead zone" between them.
- */
-fun Point.fixCoordinates(oldX: Int): Point {
-    val deadZone = deadZones.find { deadZone -> x in deadZone }
-    return if (deadZone != null) {
-        val newX = if (oldX < deadZone.first) deadZone.last else deadZone.first - 1
-        newX to y
-    } else {
-        this
-    }
-}
 
 fun Mat.toImage(): Image {
     val bytes = MatOfByte()

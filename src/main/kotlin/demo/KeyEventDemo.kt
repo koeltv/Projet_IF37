@@ -1,3 +1,9 @@
+package demo
+
+import ConfigOption.MAIN_AXIS
+import JoystickState
+import Observable
+import to
 import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.Point
@@ -8,6 +14,10 @@ import java.awt.event.KeyListener
 import java.beans.PropertyChangeSupport
 import javax.swing.*
 
+/**
+ * Demo created to show how this software works without having the Joystick connected.
+ * Can control the main axis using the arrow keys.
+ */
 class KeyEventDemo(name: String?) : JFrame(name), KeyListener, ActionListener, Observable {
     private var displayArea: JTextArea? = null
     private var typingArea: JTextField? = null
@@ -43,7 +53,7 @@ class KeyEventDemo(name: String?) : JFrame(name), KeyListener, ActionListener, O
                 KeyEvent.VK_RIGHT -> 522 to 512
                 else -> error("Unknown action")
             }
-            firePropertyChange(MAIN_AXIS, Point(newCoordinates))
+            firePropertyChange(MAIN_AXIS(), new = Point(newCoordinates))
         }
     }
 
@@ -51,7 +61,7 @@ class KeyEventDemo(name: String?) : JFrame(name), KeyListener, ActionListener, O
     override fun keyReleased(e: KeyEvent) {
         if (e.isActionKey) {
             displayInfo(e, "KEY RELEASED: ")
-            firePropertyChange("KEY_TYPED", JoystickState.defaultState)
+            firePropertyChange("KEY_TYPED", new = JoystickState.defaultState)
         }
     }
 
@@ -62,6 +72,11 @@ class KeyEventDemo(name: String?) : JFrame(name), KeyListener, ActionListener, O
         typingArea!!.requestFocusInWindow()
     }
 
+    /**
+     * Display key event in the display area.
+     * @param e the concerned key
+     * @param keyStatus the status of the key
+     */
     private fun displayInfo(e: KeyEvent, keyStatus: String) {
         val id = e.id
         val keyString = if (id == KeyEvent.KEY_TYPED) {
