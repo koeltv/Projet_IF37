@@ -91,6 +91,7 @@ Voici la description complète de la config:
   },
   "EYE_TRACKING": { paramètres liés au suivi du regard (WIP)
     "ENABLED": false, active ou désactive le suivi du regard
+    "AXIS": "MAIN_AXIS" sélectionne l'axe controllé par le suivi du regard
   }
 }
 ```
